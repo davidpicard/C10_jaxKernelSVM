@@ -114,7 +114,7 @@ def pcaw(X, dim):
     for j in range(4):
       x = jnp.reshape(X[:, i:i+28, j:j+28, :], (n, -1)) # crop + flatten
       mu = mu + x.mean(axis=0, keepdims=True)
-      for b in trange(n // batch_size, dec='{},{}'.format(i,j)):
+      for b in trange(n // batch_size, desc='{},{}'.format(i,j)):
         xb = x[b * batch_size:(b + 1) * batch_size, :]
         cov = cov + xb.T @ xb
       x = x[(b + 1) * batch_size:, :]
