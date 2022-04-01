@@ -159,7 +159,7 @@ conf = configurations[args.configuration]
 print(conf)
 
 dim = conf['dim']
-E = 5
+E = 50
 C = 100
 deg = conf['deg']
 c = conf['c']
