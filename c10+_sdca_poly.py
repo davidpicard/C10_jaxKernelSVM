@@ -29,7 +29,7 @@ def SDCA(X, y, key, kernel=sdca_poly_norm(), C=100, E=10, batch_size=1024):
   for e in range(E):
     key, skey = rnd.split(key)
     indices = rnd.permutation(skey, n)
-    for b in trange(n//batch_size, desc='Epoch {}/{}'.format(e)):
+    for b in trange(n//batch_size, desc='Epoch {}/{}'.format(e, E)):
       i = indices[b*batch_size:(b+1)*batch_size]
       Xi = X[i,:]
       yi = y[i]
