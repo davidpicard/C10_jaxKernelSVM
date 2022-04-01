@@ -145,7 +145,7 @@ def accuracy(y_pred, y):
   return (jnp.argmax(y_pred, axis=1) == jnp.argmax(y, axis=1)).mean()
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--configuration")
+parser.add_argument("--configuration", type=int)
 args = parser.parse_args()
 
 configurations = []
