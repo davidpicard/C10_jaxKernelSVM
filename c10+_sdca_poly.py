@@ -131,8 +131,8 @@ def pcaw(X, dim):
       x = x[(b + 1) * batch_size:, :]
       cov = cov + x.T @ x
 
-  mu = mu / 16
-  cov = cov / (16*n - 1) - mu.T @ mu
+  mu = mu / 32
+  cov = cov / (32*n - 1) - mu.T @ mu
 
   L, U = jnp.linalg.eigh(cov)
   P = U[:, -dim:] / jnp.sqrt(L[None, -dim:])
@@ -159,7 +159,7 @@ conf = configurations[args.configuration]
 print(conf)
 
 dim = conf['dim']
-E = 50
+E = 5
 C = 100
 deg = conf['deg']
 c = conf['c']
@@ -226,6 +226,6 @@ Yv = jnn.one_hot(y_val, num_labels)*2 - 1
 
 y_pred = sdca_predict(Xv, alpha, Xi, yi, kernel)
 
-y_pred = jnp.reshape(y_pred, (16, n, num_labels)).mean(axis=0)
+y_pred = jnp.reshape(y_pred, (32, n, num_labels)).mean(axis=0)
 acc = accuracy(y_pred, Yv)
 print('Accuracy: {}'.format(acc))
