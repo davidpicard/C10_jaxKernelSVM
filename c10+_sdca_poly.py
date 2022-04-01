@@ -159,7 +159,7 @@ conf = configurations[args.configuration]
 print(conf)
 
 dim = conf['dim']
-E = 50
+E = 5
 C = 100
 deg = conf['deg']
 c = conf['c']
@@ -209,14 +209,14 @@ n = len(X_val)
 # normal
 for i in range(4):
   for j in range(4):
-    x = jnp.reshape(X_train[:, i:i + 28, j:j + 28, :], (n, -1))  # crop + flatten
+    x = jnp.reshape(X_val[:, i:i + 28, j:j + 28, :], (n, -1))  # crop + flatten
     im = pcaw_project(x, mu, P)
     images = jnp.concatenate([images, im], axis=0)
 
 # flipped
 for i in range(4):
   for j in range(4):
-    x = X_train[:, i:i + 28, j:j + 28, :] # crop
+    x = X_val[:, i:i + 28, j:j + 28, :] # crop
     x = jnp.reshape(x[:,:,::-1,:], (n, -1)) # flip + flatten
     im = pcaw_project(x, mu, P)
     images = jnp.concatenate([images, im], axis=0)
