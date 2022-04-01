@@ -169,7 +169,7 @@ key = rnd.PRNGKey(3407) # magic seed value stolen from pytorch!
 """PCA"""
 print('PCA...')
 key, skey = rnd.split(key)
-mu, P = pcaw(X_train, dim, key)
+mu, P = pcaw(X_train, dim)
 
 images = jnp.empty((0, dim))
 labels = jnp.empty((0, num_labels))
