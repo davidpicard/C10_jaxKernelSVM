@@ -144,13 +144,13 @@ First we launch a single test with the following main hyperparameters to get an 
 """
 
 dim = 256
-E = 50
+E = 20
 C = 100
 deg = 4
 c = 0.1
 nb_aug = 50
 nb_val_aug = 10
-batch_size = 256
+batch_size = 512
 key = rnd.PRNGKey(3407) # magic seed value stolen from pytorch!
 
 # DA by imax
