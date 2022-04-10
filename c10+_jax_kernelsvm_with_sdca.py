@@ -59,7 +59,6 @@ If you want to cite this implementation, you can do so as:
 ```
 """
 
-!pip install imax
 
 import numpy as np
 import jax
@@ -67,6 +66,7 @@ import jax.numpy as jnp
 import jax.random as rnd
 import jax.nn as jnn
 import augmax
+import tqdm
 
 # Gaussian kernel
 def sdca_gaussian_norm(gamma=2.0):
@@ -83,7 +83,7 @@ def SDCA(X, y, key, kernel=sdca_gaussian_norm(), C=100, E=10, batch_size=1024):
   for e in range(E):
     key, skey = rnd.split(key)
     indices = rnd.permutation(skey, n)
-    for b in range(n//batch_size):
+    for b in tqdm.trange(n//batch_size, desc="epoch: {}/{}".format(e, E)):
       i = indices[b*batch_size:(b+1)*batch_size]
       Xi = X[i,:]
       yi = y[i]
@@ -137,7 +137,7 @@ tf.config.set_visible_devices([], device_type='GPU')
 
 import tensorflow_datasets as tfds
 
-data_dir = '/tmp/tfds'
+data_dir = './tfds'
 
 # Fetch full datasets for evaluation
 # tfds.load returns tf.Tensors (or tf.data.Datasets if batch_size != -1)
@@ -182,7 +182,7 @@ def pcaw(X, dim, key, transform, E=5):
     sub_rng = jax.random.split(skey, train_images.shape[0])
     x = jnp.reshape(transform(sub_rng, X), (n, -1))
     mu = mu + x.mean(axis=0, keepdims=True)
-    for b in range(n//batch_size):
+    for b in tqdm.trange(n//batch_size, desc="epoch {}/{}".format(e, E)):
       xb = x[b*batch_size:(b+1)*batch_size, :]
       cov = cov + xb.T @ xb
     x = x[(b+1)*batch_size:, :]
@@ -205,13 +205,13 @@ def accuracy(y_pred, y):
 First we launch a single test with the following main hyperparameters to get an idea of the time the algorithm takes and its accuracy in a somewhat default setting.
 """
 
-dim = 128
-E = 10
+dim = 256
+E = 50
 C = 100
-gamma = 3.
-nb_aug = 20
+gamma = 2.5
+nb_aug = 25
 nb_val_aug = 10
-batch_size = 256
+batch_size = 512
 key = rnd.PRNGKey(3407) # magic seed value stolen from pytorch!
 
 # DA by imax
@@ -228,7 +228,7 @@ vtransform = augmax.Chain(
 vaugment = jax.jit(jax.vmap(vtransform))
 
 """PCA"""
-
+print("doing PCA")
 key, skey = rnd.split(key)
 mu, P = pcaw(X_train, dim, key, augment, E=nb_aug)
 
@@ -247,12 +247,12 @@ X_pca = images
 Y = labels
 
 """Training one vs all"""
-
+print("Training...")
 key, skey = rnd.split(key)
 alpha, Xi, yi, kernel = SDCA(X_pca, Y, key, kernel=sdca_gaussian_norm(gamma=gamma), C=C, E=E, batch_size=batch_size)
 
 """Validation accuracy"""
-
+print("Evaluating...")
 images = jnp.empty((0, dim))
 n = len(X_val)
 for e in range(nb_val_aug):
@@ -267,7 +267,8 @@ Yv = jnn.one_hot(y_val, num_labels)*2 - 1
 y_pred = sdca_predict(Xv, alpha, Xi, yi, kernel)
 
 y_pred = jnp.reshape(y_pred, (nb_val_aug, n, num_labels)).mean(axis=0)
-accuracy(y_pred, Yv)
+acc = accuracy(y_pred, Yv)
+print('accuracy: {}'.format(acc))
 
 """Looking at $\alpha$, we can see they are super sparse. Indeed, there is no reason that a sample would be a suport vector for all the one-versus-all problems and thus it makes sense that most of the columns are null for a specific line."""
 
