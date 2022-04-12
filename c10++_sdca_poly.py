@@ -150,7 +150,7 @@ deg = 4
 c = 0.1
 nb_aug = 100
 nb_val_aug = 20
-batch_size = 384
+batch_size = 128
 key = rnd.PRNGKey(3407) # magic seed value stolen from pytorch!
 
 # DA by imax
