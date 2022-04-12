@@ -34,7 +34,6 @@ def SDCA(X, y, key, kernel=sdca_poly_norm(), C=100, E=10, batch_size=1024):
     for b in tqdm.trange(n//batch_size, desc="epoch: {}/{}".format(e, E)):
       i = indices[b*batch_size:(b+1)*batch_size]
       Xi = X[i,:]
-      yi = y[i]
       Ki = kernel(Xi, X)
       alpha = sdca_update_alpha(alpha, y, i, Ki, C)
     # last incomplete batch
@@ -42,6 +41,7 @@ def SDCA(X, y, key, kernel=sdca_poly_norm(), C=100, E=10, batch_size=1024):
     Xi = X[i,:]
     Ki = kernel(Xi, X)
     alpha = sdca_update_alpha(alpha, y, i, Ki, C)
+    Ki = None # free mem
   
   # pruning
   i = alpha.sum(axis=1) > 1e-7
@@ -143,14 +143,14 @@ def accuracy(y_pred, y):
 First we launch a single test with the following main hyperparameters to get an idea of the time the algorithm takes and its accuracy in a somewhat default setting.
 """
 
-dim = 256
-E = 20
+dim = 128
+E = 5
 C = 100
 deg = 4
 c = 0.1
-nb_aug = 50
-nb_val_aug = 10
-batch_size = 512
+nb_aug = 100
+nb_val_aug = 20
+batch_size = 384
 key = rnd.PRNGKey(3407) # magic seed value stolen from pytorch!
 
 # DA by imax
